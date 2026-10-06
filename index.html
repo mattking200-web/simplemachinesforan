@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Machines Explorers! | Ontario Grade 2 Science</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Fredoka', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              blue: '#3B82F6',
+              yellow: '#F59E0B',
+              green: '#10B981',
+              purple: '#8B5CF6',
+              pink: '#EC4899',
+              orange: '#F97316'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .font-display {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+
+    /* Soft pulse for interactive targets */
+    @keyframes gentle-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .animate-gentle {
+      animation: gentle-bounce 2.5s infinite ease-in-out;
+    }
+
+    /* Pop effect on correct selection */
+    @keyframes pop-success {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .pop-correct {
+      animation: pop-success 0.4s ease-out;
+    }
+
+    /* Custom scrollbar for clean visual presentation */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* High contrast focus ring for touch & accessibility */
+    .touch-target {
+      min-height: 64px;
+      min-width: 64px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .touch-target:active {
+      transform: scale(0.97);
+    }
+
+    /* Confetti canvas overlay */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-amber-50 via-sky-50 to-indigo-50 min-h-screen text-slate-800 flex flex-col justify-between selection:bg-amber-200">
+  <!-- Confetti canvas for celebrations -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Top Application Header -->
+  <header class="bg-white/90 backdrop-blur-md border-b-4 border-amber-300 sticky top-0 z-30 shadow-sm px-4 py-3">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Logo & App Title -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="app.goHome()">
+        <div class="bg-amber-400 text-slate-900 font-display font-bold text-2xl w-12 h-12 rounded-2xl flex items-center justify-center shadow-md transform -rotate-3 border-2 border-amber-500">
+          ⚙️
+        </div>
+        <div>
+          <h1 class="font-display font-bold text-xl md:text-2xl text-slate-800 tracking-wide leading-tight">
+            Simple Machines Explorers!
+          </h1>
+          <p class="text-xs text-slate-500 font-semibold hidden sm:block">Ontario Grade 2 Science & Technology</p>
+        </div>
+      </div>
+
+      <!-- Controls & Progress Pill -->
+      <div class="flex items-center space-x-2 md:space-x-3">
+        
+        <!-- Total Stars Display -->
+        <div class="bg-amber-100 border-2 border-amber-300 px-3 py-1.5 rounded-2xl flex items-center space-x-1.5 shadow-inner">
+          <span class="text-xl">⭐</span>
+          <span id="star-count" class="font-display font-bold text-amber-800 text-lg md:text-xl">0</span>
+        </div>
+
+        <!-- Sound Toggle Button -->
+        <button id="sound-btn" onclick="app.toggleSound()" class="touch-target bg-sky-100 hover:bg-sky-200 border-2 border-sky-300 p-2.5 rounded-2xl flex items-center justify-center text-xl text-sky-800 shadow-sm" title="Toggle Sound / Text-To-Speech">
+          🔊
+        </button>
+
+        <!-- Vocabulary Glossary Button -->
+        <button onclick="app.openGlossary()" class="touch-target bg-purple-100 hover:bg-purple-200 border-2 border-purple-300 px-3 py-2 rounded-2xl font-display font-bold text-purple-800 flex items-center space-x-1 text-sm md:text-base shadow-sm">
+          <span>📖</span>
+          <span class="hidden md:inline">Words</span>
+        </button>
+
+        <!-- Badges Drawer Button -->
+        <button onclick="app.openBadges()" class="touch-target bg-emerald-100 hover:bg-emerald-200 border-2 border-emerald-300 px-3 py-2 rounded-2xl font-display font-bold text-emerald-800 flex items-center space-x-1 text-sm md:text-base shadow-sm">
+          <span>🏆</span>
+          <span class="hidden md:inline">Badges</span>
+        </button>
+
+        <!-- Teacher / Curriculum Info -->
+        <button onclick="app.openTeacherModal()" class="touch-target bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 px-3 py-2 rounded-2xl font-display font-bold text-slate-700 flex items-center space-x-1 text-sm shadow-sm" title="Ontario Curriculum Info">
+          <span>🍎</span>
+          <span class="hidden lg:inline">Teacher</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Level Navigator & Progress Bar Bar -->
+  <nav class="bg-amber-100/70 border-b border-amber-200 py-2 px-4 overflow-x-auto scrollbar-thin">
+    <div class="max-w-6xl mx-auto flex items-center space-x-2 min-w-max pb-1" id="level-nav-container">
+      <!-- Generated dynamically by JS -->
+    </div>
+  </nav>
+
+  <!-- Main Active Content Container -->
+  <main class="max-w-5xl mx-auto px-4 py-6 flex-1 w-full flex flex-col justify-center">
+    
+    <!-- LEVEL 1 VIEW: Meet the Six Simple Machines -->
+    <section id="level-1-view" class="hidden space-y-6">
+      <div class="bg-white rounded-3xl p-6 shadow-xl border-4 border-amber-200">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Level 1 — Explore</span>
+            <h2 class="font-display text-2xl md:text-3xl font-bold text-slate-800 flex items-center gap-2 mt-1">
+              <span>Meet the Six Simple Machines</span>
+              <button onclick="app.speakText('Meet the Six Simple Machines. Tap any machine to explore how it helps us work!')" class="text-sky-600 hover:text-sky-800 text-2xl p-1">🔊</button>
+            </h2>
+          </div>
+          <p class="text-slate-600 font-medium text-base">Tap a machine to explore what it does!</p>
+        </div>
+
+        <!-- Machine Tabs Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 my-6" id="level1-machine-tabs">
+          <!-- Dynamic Tabs inserted by JS -->
+        </div>
+
+        <!-- Selected Machine Card Display -->
+        <div id="level1-card-content" class="bg-slate-50 border-3 border-slate-200 rounded-3xl p-6 md:p-8 flex flex-col lg:flex-row items-center gap-8 shadow-inner">
+          <!-- Content dynamically rendered -->
+        </div>
+
+        <!-- Level 1 Completion CTA -->
+        <div class="mt-8 flex justify-center">
+          <button onclick="app.completeLevel1()" class="touch-target bg-emerald-500 hover:bg-emerald-600 text-white font-display text-xl font-bold px-8 py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center space-x-3">
+            <span>I'm Ready to Play Games!</span>
+            <span class="text-2xl">🚀</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUIZ VIEW: Used for Levels 2 to 7, Level 9, Level 10 -->
+    <section id="quiz-view" class="hidden space-y-6">
+      <div class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-sky-200 relative overflow-hidden">
+        
+        <!-- Header & Progress Pill -->
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <span id="quiz-level-badge" class="bg-sky-100 text-sky-800 text-xs md:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider">Level 2</span>
+            <span id="quiz-counter" class="text-slate-500 font-bold text-sm">Question 1/6</span>
+          </div>
+          <button id="question-speaker-btn" onclick="app.speakCurrentQuestion()" class="touch-target bg-sky-100 hover:bg-sky-200 text-sky-700 px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1 text-sm">
+            <span>🔊</span>
+            <span class="hidden sm:inline">Read Aloud</span>
+          </button>
+        </div>
+
+        <!-- Question Prompt Area -->
+        <div class="text-center my-4 space-y-3">
+          <h2 id="quiz-question-text" class="font-display font-bold text-2xl md:text-3xl text-slate-800 leading-snug">
+            Question text goes here
+          </h2>
+          <div id="quiz-subtext" class="text-slate-600 font-medium text-lg hidden">
+            <!-- Subtext if needed -->
+          </div>
+        </div>
+
+        <!-- Question Main Image/Illustration (If applicable) -->
+        <div id="quiz-main-illustration" class="flex justify-center items-center my-6 min-h-[160px] max-h-[240px]">
+          <!-- SVG dynamically loaded -->
+        </div>
+
+        <!-- Answer Options Container -->
+        <div id="quiz-options-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 my-6">
+          <!-- Dynamic Option Buttons -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LEVEL 8 VIEW: Sort the Simple Machines -->
+    <section id="level-8-view" class="hidden space-y-6">
+      <div class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-indigo-200">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <span class="bg-indigo-100 text-indigo-800 text-xs md:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider">Level 8 — Sorting Game</span>
+          <button onclick="app.speakText(document.getElementById('sort-instruction-text').innerText)" class="touch-target bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1 text-sm">
+            <span>🔊</span>
+            <span class="hidden sm:inline">Read</span>
+          </button>
+        </div>
+
+        <div class="text-center my-4">
+          <h2 id="sort-instruction-text" class="font-display font-bold text-2xl md:text-3xl text-indigo-900">
+            Find all the <span id="sort-target-machine-name" class="underline decoration-indigo-400 decoration-4">LEVERS</span>!
+          </h2>
+          <p class="text-slate-600 font-semibold mt-1">Tap every picture that belongs to this simple machine family!</p>
+        </div>
+
+        <!-- Sorting Cards Grid -->
+        <div id="sorting-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6 my-6">
+          <!-- Dynamic Sorting Cards -->
+        </div>
+
+        <!-- Sorting Status Indicator -->
+        <div class="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
+          <div class="text-slate-700 font-bold text-lg" id="sorting-found-status">
+            Found: 0 / 3
+          </div>
+          <div class="text-slate-500 text-sm font-semibold">
+            Tap the correct items above!
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LEVEL CELEBRATION VIEW -->
+    <section id="completion-view" class="hidden text-center space-y-6">
+      <div class="bg-white rounded-3xl p-8 shadow-2xl border-4 border-amber-300 max-w-2xl mx-auto py-12 space-y-6">
+        <div class="text-6xl md:text-8xl animate-gentle">🎉</div>
+        
+        <h2 id="completion-title" class="font-display font-bold text-3xl md:text-4xl text-amber-600">
+          Awesome Job Explorer!
+        </h2>
+
+        <p id="completion-message" class="text-xl text-slate-700 font-semibold max-w-md mx-auto">
+          You finished this level and earned stars!
+        </p>
+
+        <!-- Badge Unlocked Banner (If earned) -->
+        <div id="badge-unlocked-banner" class="hidden bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 max-w-md mx-auto flex items-center justify-center space-x-4">
+          <span id="badge-unlocked-icon" class="text-5xl">🏆</span>
+          <div class="text-left">
+            <span class="text-xs font-bold text-emerald-600 uppercase">New Badge Unlocked!</span>
+            <h4 id="badge-unlocked-title" class="font-display font-bold text-xl text-emerald-900">Lever Expert</h4>
+          </div>
+        </div>
+
+        <div class="pt-4 flex flex-col sm:flex-row justify-center gap-4">
+          <button onclick="app.nextLevel()" class="touch-target bg-amber-500 hover:bg-amber-600 text-white font-display text-xl font-bold px-8 py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center space-x-2">
+            <span>Next Level</span>
+            <span>➡️</span>
+          </button>
+          
+          <button onclick="app.goHome()" class="touch-target bg-slate-100 hover:bg-slate-200 text-slate-700 font-display text-lg font-bold px-6 py-4 rounded-2xl border-2 border-slate-300">
+            Choose Level 🏠
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- VISUAL GLOSSARY MODAL -->
+  <div id="glossary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border-4 border-purple-300 overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="bg-purple-100 p-4 px-6 flex items-center justify-between border-b-2 border-purple-200">
+        <h3 class="font-display font-bold text-2xl text-purple-900 flex items-center gap-2">
+          <span>📖</span>
+          <span>Simple Machines Glossary</span>
+        </h3>
+        <button onclick="app.closeGlossary()" class="touch-target w-10 h-10 bg-white hover:bg-purple-200 rounded-full text-slate-700 font-bold text-xl flex items-center justify-center border border-purple-300">
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-1" id="glossary-cards-container">
+        <!-- Dynamic Glossary Cards rendered by JS -->
+      </div>
+      
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-center">
+        <button onclick="app.closeGlossary()" class="touch-target bg-purple-600 hover:bg-purple-700 text-white font-display font-bold px-8 py-3 rounded-2xl text-lg shadow-md">
+          Back to Game
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEACHER / ONTARIO CURRICULUM MODAL -->
+  <div id="teacher-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border-4 border-slate-300 overflow-hidden">
+      
+      <div class="bg-slate-100 p-4 px-6 flex items-center justify-between border-b-2 border-slate-200">
+        <h3 class="font-display font-bold text-xl text-slate-800 flex items-center gap-2">
+          <span>🍎</span>
+          <span>Ontario Curriculum Connection — Grade 2 Science</span>
+        </h3>
+        <button onclick="app.closeTeacherModal()" class="touch-target w-10 h-10 bg-white hover:bg-slate-200 rounded-full text-slate-700 font-bold text-xl flex items-center justify-center border border-slate-300">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-6 text-slate-700 text-sm md:text-base leading-relaxed">
+        
+        <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-2xl">
+          <h4 class="font-bold text-amber-900 text-lg">Strand B: Structures and Mechanisms — Movement and Simple Machines</h4>
+          <p class="mt-1 text-slate-700">
+            This web application aligns directly with Ontario Grade 2 Science and Technology expectations. It provides a non-punitive, multi-sensory, and accessible pathway for all students, including neurodiverse learners and students with special education needs.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-900 text-lg border-b pb-1 mb-2">Curriculum Expectations Addressed:</h4>
+          <ul class="list-disc pl-5 space-y-2 text-slate-700">
+            <li><strong>B1. Relating Science and Technology to Our World:</strong> Identify simple machines in everyday life (e.g. ramps, scissors, doorstops, wheelbarrows, flagpoles) and assess how they make tasks easier.</li>
+            <li><strong>B2. Developing Investigation and Communication Skills:</strong> Investigate how simple machines move objects and change the direction or amount of force needed.</li>
+            <li><strong>B3. Understanding Basic Concepts:</strong> Identify six simple machines: lever, wheel and axle, pulley, inclined plane, wedge, and screw; describe their basic purpose and functions.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-900 text-lg border-b pb-1 mb-2">Level Progression Alignment:</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <strong>Level 1 (Meet Machines):</strong> Visual recognition & basic concepts (B3.1).
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <strong>Level 2 & 3 (Matching & Names):</strong> Visual discrimination & vocabulary building.
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <strong>Level 4 & 5 (Everyday Objects):</strong> Connecting concepts to real-world objects (B1.1).
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <strong>Level 6 & 7 (Purposes & Problem Solving):</strong> Understanding mechanical function & application (B2.2).
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <strong>Level 8 & 9 (Sorting & Comparing):</strong> Higher-order categorisation and decision-making (B3.2).
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <strong>Level 10 (Challenge):</strong> Comprehensive formative assessment.
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-sky-50 border-l-4 border-sky-400 p-4 rounded-r-2xl">
+          <h4 class="font-bold text-sky-900 text-base">Special Education & Universal Design for Learning (UDL) Features:</h4>
+          <p class="mt-1 text-sm text-slate-700">
+            • <strong>Strict Non-Punitive Rule:</strong> Choosing an incorrect option results in silence and no state shift—preventing anxiety and encouraging safe retry.<br>
+            • <strong>Integrated TTS & Audio:</strong> All text can be read aloud using Web Speech API.<br>
+            • <strong>SVG Visual System:</strong> Crisp vector illustrations instead of external image dependencies.<br>
+            • <strong>Touch-Optimised:</strong> Target sizes exceeding 60px for Chromebook touchscreens and iPads.
+          </p>
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <button onclick="app.resetProgress()" class="text-xs text-red-600 hover:text-red-800 underline font-semibold">
+            Reset All Student Progress & Stars
+          </button>
+        </div>
+
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-center">
+        <button onclick="app.closeTeacherModal()" class="touch-target bg-slate-700 hover:bg-slate-800 text-white font-display font-bold px-8 py-2.5 rounded-xl text-base">
+          Close Info
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BADGES MODAL -->
+  <div id="badges-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border-4 border-emerald-300 overflow-hidden">
+      
+      <div class="bg-emerald-100 p-4 px-6 flex items-center justify-between border-b-2 border-emerald-200">
+        <h3 class="font-display font-bold text-2xl text-emerald-900 flex items-center gap-2">
+          <span>🏆</span>
+          <span>Your Explorer Badges</span>
+        </h3>
+        <button onclick="app.closeBadges()" class="touch-target w-10 h-10 bg-white hover:bg-emerald-200 rounded-full text-slate-700 font-bold text-xl flex items-center justify-center border border-emerald-300">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-4" id="badges-grid-container">
+        <!-- Dynamic Badges rendered by JS -->
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-center">
+        <button onclick="app.closeBadges()" class="touch-target bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold px-8 py-3 rounded-2xl text-lg shadow-md">
+          Keep Exploring!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <footer class="py-3 px-4 text-center text-xs text-slate-500 font-medium">
+    Ontario Science & Technology Grade 2 • Simple Machines Explorer • Designed for Classroom Accessibility
+  </footer>
+
+  <!-- APPLICATION LOGIC & DATA SCRIPT -->
+  <script>
+
+    // Global Sound State & Synthesizer
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function playSuccessChime() {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const now = audioCtx.currentTime;
+        const notes = [392.00, 523.25, 659.25, 783.99]; // G4, C5, E5, G5
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          
+          gain.gain.setValueAtTime(0, now + idx * 0.08);
+          gain.gain.linearRampToValueAtTime(0.2, now + idx * 0.08 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.36);
+        });
+      } catch (e) {
+        console.warn('Audio synthesis issue:', e);
+      }
+    }
+
+    function speakText(text) {
+      if (!soundEnabled) return;
+      if (!('speechSynthesis' in window)) return;
+
+      window.speechSynthesis.cancel(); // Stop prior speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9; // Slightly slower for Grade 2 clarity
+      utterance.pitch = 1.05; // Friendly tone
+
+      // Try selecting a clear English voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha')));
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // SVG Vector Illustration Library
+    const SVGs = {
+      lever: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Fulcrum Triangle -->
+          <polygon points="80,75 60,110 100,110" fill="#F59E0B" stroke="#D97706" stroke-width="4" stroke-linejoin="round"/>
+          <circle cx="80" cy="80" r="4" fill="#78350F"/>
+          <!-- Beam -->
+          <rect x="15" y="65" width="130" height="12" rx="4" fill="#3B82F6" stroke="#1D4ED8" stroke-width="3" transform="rotate(-6 80 71)"/>
+          <!-- Load Box -->
+          <rect x="20" y="32" width="28" height="28" rx="4" fill="#10B981" stroke="#047857" stroke-width="3" transform="rotate(-6 80 71)"/>
+          <text x="34" y="52" font-weight="bold" font-size="14" fill="white" text-anchor="middle">📦</text>
+          <!-- Down Force Arrow -->
+          <path d="M130 25 L130 52 M124 45 L130 53 L136 45" stroke="#EF4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`,
+
+      wheel_axle: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Large Wheel Outer -->
+          <circle cx="80" cy="60" r="48" fill="#E0F2FE" stroke="#0284C7" stroke-width="6"/>
+          <circle cx="80" cy="60" r="38" fill="none" stroke="#38BDF8" stroke-width="2" stroke-dasharray="6 6"/>
+          <!-- Spokes -->
+          <line x1="80" y1="12" x2="80" y2="108" stroke="#0284C7" stroke-width="4"/>
+          <line x1="32" y1="60" x2="128" y2="60" stroke="#0284C7" stroke-width="4"/>
+          <line x1="46" y1="26" x2="114" y2="94" stroke="#0284C7" stroke-width="3"/>
+          <line x1="46" y1="94" x2="114" y2="26" stroke="#0284C7" stroke-width="3"/>
+          <!-- Axle Shaft Cylinder -->
+          <rect x="70" y="50" width="45" height="20" rx="4" fill="#94A3B8" stroke="#475569" stroke-width="3"/>
+          <circle cx="80" cy="60" r="10" fill="#F59E0B" stroke="#B45309" stroke-width="3"/>
+        </svg>`,
+
+      pulley: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Top Support Mount -->
+          <rect x="70" y="5" width="20" height="20" fill="#64748B" rx="2"/>
+          <line x1="80" y1="25" x2="80" y2="35" stroke="#334155" stroke-width="5"/>
+          <!-- Pulley Wheel -->
+          <circle cx="80" cy="45" r="18" fill="#F1F5F9" stroke="#0EA5E9" stroke-width="5"/>
+          <circle cx="80" cy="45" r="5" fill="#0284C7"/>
+          <!-- Rope -->
+          <path d="M63 45 L63 105 M97 45 L97 85" stroke="#D97706" stroke-width="4" stroke-dasharray="100" stroke-linecap="round"/>
+          <!-- Hanging Bucket/Weight -->
+          <rect x="48" y="80" width="30" height="25" rx="4" fill="#10B981" stroke="#047857" stroke-width="3"/>
+          <path d="M53 80 C53 72, 73 72, 73 80" stroke="#047857" stroke-width="3" fill="none"/>
+          <!-- Pull Hand Arrow -->
+          <path d="M97 80 L97 105 M92 98 L97 106 L102 98" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
+        </svg>`,
+
+      inclined_plane: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ground line -->
+          <line x1="10" y1="105" x2="150" y2="105" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+          <!-- Triangular Ramp -->
+          <polygon points="20,105 140,105 140,35" fill="#FEF3C7" stroke="#F59E0B" stroke-width="5" stroke-linejoin="round"/>
+          <!-- Object Box Sliding Up -->
+          <g transform="translate(65, 55) rotate(-30)">
+            <rect x="0" y="0" width="28" height="28" rx="4" fill="#8B5CF6" stroke="#6D28D9" stroke-width="3"/>
+            <!-- Push Arrow -->
+            <path d="M-12 14 L-2 14 M-6 8 L0 14 L-6 20" stroke="#10B981" stroke-width="4" stroke-linecap="round"/>
+          </g>
+        </svg>`,
+
+      wedge: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Wooden Block Being Split -->
+          <rect x="25" y="60" width="45" height="50" fill="#D97706" rx="4"/>
+          <rect x="90" y="60" width="45" height="50" fill="#D97706" rx="4"/>
+          <!-- Sharp Wedge triangular blade -->
+          <polygon points="80,95 62,20 98,20" fill="#E2E8F0" stroke="#64748B" stroke-width="4" stroke-linejoin="round"/>
+          <!-- Split Arrows -->
+          <path d="M45 45 L25 45 M32 39 L23 45 L32 51" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
+          <path d="M115 45 L135 45 M128 39 L137 45 L128 51" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
+        </svg>`,
+
+      screw: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Screw Top Cap -->
+          <ellipse cx="80" cy="22" rx="32" ry="10" fill="#94A3B8" stroke="#475569" stroke-width="4"/>
+          <line x1="68" y1="22" x2="92" y2="22" stroke="#334155" stroke-width="4" stroke-linecap="round"/>
+          <!-- Main Shaft -->
+          <path d="M62 24 L62 95 Q80 115 80 115 Q80 115 98 95 L98 24 Z" fill="#CBD5E1" stroke="#475569" stroke-width="4"/>
+          <!-- Spiral Threads -->
+          <path d="M62 38 Q80 48 98 38" stroke="#334155" stroke-width="4" fill="none"/>
+          <path d="M62 54 Q80 64 98 54" stroke="#334155" stroke-width="4" fill="none"/>
+          <path d="M62 70 Q80 80 98 70" stroke="#334155" stroke-width="4" fill="none"/>
+          <path d="M64 86 Q80 96 96 86" stroke="#334155" stroke-width="4" fill="none"/>
+        </svg>`,
+
+      // Everyday Objects
+      seesaw: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <polygon points="80,70 60,105 100,105" fill="#10B981" stroke="#047857" stroke-width="4"/>
+          <rect x="15" y="60" width="130" height="10" rx="3" fill="#F59E0B" stroke="#B45309" stroke-width="3" transform="rotate(-8 80 65)"/>
+          <!-- Seats -->
+          <rect x="15" y="42" width="15" height="15" fill="#EF4444" rx="2"/>
+          <rect x="130" y="58" width="15" height="15" fill="#3B82F6" rx="2"/>
+        </svg>`,
+
+      scissors: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <!-- Blade 1 -->
+          <path d="M30 20 L110 85 M110 85 L135 100" stroke="#94A3B8" stroke-width="8" stroke-linecap="round"/>
+          <!-- Blade 2 -->
+          <path d="M30 100 L110 35 M110 35 L135 20" stroke="#94A3B8" stroke-width="8" stroke-linecap="round"/>
+          <!-- Pivot -->
+          <circle cx="80" cy="58" r="6" fill="#334155"/>
+          <!-- Handles -->
+          <circle cx="28" cy="20" r="14" fill="none" stroke="#EF4444" stroke-width="6"/>
+          <circle cx="28" cy="100" r="14" fill="none" stroke="#EF4444" stroke-width="6"/>
+        </svg>`,
+
+      doorknob: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <!-- Back Plate -->
+          <rect x="35" y="20" width="40" height="80" rx="10" fill="#F1F5F9" stroke="#94A3B8" stroke-width="4"/>
+          <!-- Knob Head -->
+          <circle cx="95" cy="60" r="32" fill="#F59E0B" stroke="#B45309" stroke-width="5"/>
+          <circle cx="90" cy="55" r="26" fill="#FBBF24"/>
+          <!-- Shaft -->
+          <rect x="65" y="50" width="20" height="20" fill="#D97706"/>
+          <!-- Keyhole -->
+          <circle cx="45" cy="70" r="4" fill="#334155"/>
+          <polygon points="43,70 47,70 49,80 41,80" fill="#334155"/>
+        </svg>`,
+
+      flagpole: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <!-- Ground -->
+          <rect x="20" y="110" width="120" height="6" fill="#10B981" rx="3"/>
+          <!-- Pole -->
+          <rect x="50" y="15" width="8" height="95" fill="#94A3B8" rx="2"/>
+          <!-- Top Pulley Wheel -->
+          <circle cx="54" cy="15" r="8" fill="#F59E0B" stroke="#B45309" stroke-width="2"/>
+          <!-- Flag -->
+          <rect x="58" y="25" width="55" height="35" fill="#EF4444" rx="2"/>
+          <rect x="76" y="25" width="19" height="35" fill="white"/>
+          <text x="85" y="48" font-size="16" text-anchor="middle">🍁</text>
+          <!-- Rope -->
+          <line x1="48" y1="15" x2="48" y2="90" stroke="#334155" stroke-width="2" stroke-dasharray="3 3"/>
+        </svg>`,
+
+      ramp: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <!-- Truck back -->
+          <rect x="110" y="30" width="40" height="75" fill="#3B82F6" rx="4"/>
+          <circle cx="130" cy="105" r="10" fill="#1E293B"/>
+          <!-- Ramp Slant -->
+          <polygon points="15,105 110,105 110,55" fill="#FCD34D" stroke="#F59E0B" stroke-width="4" stroke-linejoin="round"/>
+          <!-- Box on Ramp -->
+          <rect x="45" y="70" width="22" height="22" rx="3" fill="#10B981" transform="rotate(-25 55 80)"/>
+        </svg>`,
+
+      knife: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <!-- Handle -->
+          <rect x="15" y="50" width="45" height="20" rx="5" fill="#78350F" stroke="#451A03" stroke-width="3"/>
+          <circle cx="30" cy="60" r="3" fill="#F59E0B"/>
+          <circle cx="45" cy="60" r="3" fill="#F59E0B"/>
+          <!-- Blade Wedge -->
+          <path d="M60 50 L145 50 C145 50, 120 70, 60 70 Z" fill="#E2E8F0" stroke="#64748B" stroke-width="3"/>
+          <!-- Apple being cut -->
+          <circle cx="120" cy="85" r="18" fill="#EF4444"/>
+          <path d="M120 67 C120 67, 124 62, 128 64" stroke="#15803D" stroke-width="3" fill="none"/>
+        </svg>`,
+
+      jar_lid: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <!-- Glass Jar Body -->
+          <rect x="40" y="45" width="80" height="65" rx="12" fill="#E0F2FE" stroke="#38BDF8" stroke-width="4"/>
+          <!-- Spiral Neck Threads -->
+          <rect x="48" y="32" width="64" height="14" fill="#BAE6FD"/>
+          <line x1="48" y1="36" x2="112" y2="36" stroke="#0284C7" stroke-width="3"/>
+          <line x1="48" y1="42" x2="112" y2="42" stroke="#0284C7" stroke-width="3"/>
+          <!-- Metal Screw Lid -->
+          <rect x="42" y="15" width="76" height="20" rx="5" fill="#F59E0B" stroke="#B45309" stroke-width="4"/>
+          <line x1="42" y1="25" x2="118" y2="25" stroke="#FBBF24" stroke-width="3"/>
+        </svg>`,
+
+      axe: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <!-- Wooden Handle -->
+          <path d="M40 105 Q60 60 110 20" stroke="#78350F" stroke-width="12" stroke-linecap="round"/>
+          <!-- Wedge Axe Head -->
+          <path d="M95 15 L135 10 Q145 30 135 55 L95 40 Z" fill="#94A3B8" stroke="#475569" stroke-width="4" stroke-linejoin="round"/>
+        </svg>`,
+
+      bottle_opener: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <rect x="20" y="50" width="80" height="20" rx="6" fill="#3B82F6" stroke="#1D4ED8" stroke-width="4"/>
+          <path d="M100 45 L140 45 C145 45, 145 75, 140 75 L100 75 Z" fill="#CBD5E1" stroke="#475569" stroke-width="4"/>
+          <rect x="110" y="53" width="18" height="14" rx="2" fill="#F8FAFC"/>
+        </svg>`,
+
+      crane: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <rect x="20" y="90" width="50" height="25" rx="4" fill="#F59E0B"/>
+          <circle cx="35" cy="115" r="6" fill="#334155"/>
+          <circle cx="55" cy="115" r="6" fill="#334155"/>
+          <line x1="60" y1="90" x2="130" y2="20" stroke="#D97706" stroke-width="8"/>
+          <!-- Pulley wheel top -->
+          <circle cx="130" cy="20" r="7" fill="#38BDF8" stroke="#0284C7" stroke-width="3"/>
+          <line x1="130" y1="27" x2="130" y2="70" stroke="#334155" stroke-width="3"/>
+          <rect x="120" y="70" width="20" height="20" rx="3" fill="#10B981"/>
+        </svg>`,
+
+      slide: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <!-- Ladder -->
+          <line x1="30" y1="20" x2="30" y2="105" stroke="#64748B" stroke-width="5"/>
+          <line x1="20" y1="40" x2="40" y2="40" stroke="#64748B" stroke-width="3"/>
+          <line x1="20" y1="65" x2="40" y2="65" stroke="#64748B" stroke-width="3"/>
+          <line x1="20" y1="90" x2="40" y2="90" stroke="#64748B" stroke-width="3"/>
+          <!-- Inclined Slide Plank -->
+          <path d="M30 20 Q80 30 135 105" stroke="#EC4899" stroke-width="12" fill="none" stroke-linecap="round"/>
+        </svg>`,
+
+      bicycle: (w=120, h=100) => `
+        <svg width="${w}" height="${h}" viewBox="0 0 160 120" fill="none">
+          <circle cx="45" cy="75" r="28" stroke="#0284C7" stroke-width="5" fill="none"/>
+          <circle cx="120" cy="75" r="28" stroke="#0284C7" stroke-width="5" fill="none"/>
+          <!-- Frame -->
+          <path d="M45 75 L75 75 L100 45 L58 45 Z M75 75 L120 75" stroke="#EF4444" stroke-width="4" fill="none"/>
+        </svg>`
+    };
+
+    // Core Simple Machines Dataset
+    const MACHINES_DATA = {
+      lever: {
+        id: 'lever',
+        name: 'Lever',
+        icon: '⚖️',
+        svgKey: 'lever',
+        simpleDef: 'A lever is a stiff bar that turns on a fixed point to help lift or move heavy things.',
+        grade2Text: 'A lever is a stiff bar that rests on a point. It helps us lift or push things with less effort!',
+        examples: [
+          { name: 'Seesaw', svgKey: 'seesaw' },
+          { name: 'Scissors', svgKey: 'scissors' },
+          { name: 'Bottle Opener', svgKey: 'bottle_opener' }
+        ]
+      },
+      wheel_axle: {
+        id: 'wheel_axle',
+        name: 'Wheel and Axle',
+        icon: '🛞',
+        svgKey: 'wheel_axle',
+        simpleDef: 'A wheel and axle is a rod connected to a wheel to help things roll or turn easily.',
+        grade2Text: 'A wheel and axle has a round wheel attached to a rod. It helps objects roll across the ground or turn smoothly!',
+        examples: [
+          { name: 'Doorknob', svgKey: 'doorknob' },
+          { name: 'Bicycle Wheel', svgKey: 'bicycle' }
+        ]
+      },
+      pulley: {
+        id: 'pulley',
+        name: 'Pulley',
+        icon: '🪢',
+        svgKey: 'pulley',
+        simpleDef: 'A pulley uses a grooved wheel and a rope to lift objects up and down.',
+        grade2Text: 'A pulley uses a wheel and rope. When you pull down on the rope, the load goes UP!',
+        examples: [
+          { name: 'Flagpole', svgKey: 'flagpole' },
+          { name: 'Construction Crane', svgKey: 'crane' }
+        ]
+      },
+      inclined_plane: {
+        id: 'inclined_plane',
+        name: 'Inclined Plane',
+        icon: '📐',
+        svgKey: 'inclined_plane',
+        simpleDef: 'An inclined plane is a slanted flat surface or ramp used to move objects up or down.',
+        grade2Text: 'An inclined plane is a sloped ramp. It lets you slide heavy boxes up instead of lifting them straight up!',
+        examples: [
+          { name: 'Ramp', svgKey: 'ramp' },
+          { name: 'Playground Slide', svgKey: 'slide' }
+        ]
+      },
+      wedge: {
+        id: 'wedge',
+        name: 'Wedge',
+        icon: '🪓',
+        svgKey: 'wedge',
+        simpleDef: 'A wedge has a sharp edge used to cut, split, or hold things in place.',
+        grade2Text: 'A wedge has a pointed sharp edge. It cuts things apart, splits wood, or holds doors open!',
+        examples: [
+          { name: 'Knife', svgKey: 'knife' },
+          { name: 'Wood Axe', svgKey: 'axe' }
+        ]
+      },
+      screw: {
+        id: 'screw',
+        name: 'Screw',
+        icon: '🔩',
+        svgKey: 'screw',
+        simpleDef: 'A screw is an inclined plane wrapped around a cylinder in a spiral shape.',
+        grade2Text: 'A screw has spiral threads wrapped around it. It turns to hold things together tightly!',
+        examples: [
+          { name: 'Jar Lid', svgKey: 'jar_lid' }
+        ]
+      }
+    };
+
+    // Questions Dataset for Levels 2 through 10
+    const LEVEL_QUESTIONS = {
+      // Level 2: Picture Matching (Identical / Direct visual match)
+      level2: [
+        {
+          id: 'l2_1',
+          prompt: 'Find the matching Inclined Plane!',
+          targetSvg: 'inclined_plane',
+          options: [
+            { svg: 'inclined_plane', label: 'Ramp', correct: true },
+            { svg: 'pulley', label: 'Pulley', correct: false },
+            { svg: 'screw', label: 'Screw', correct: false }
+          ]
+        },
+        {
+          id: 'l2_2',
+          prompt: 'Find the matching Lever!',
+          targetSvg: 'lever',
+          options: [
+            { svg: 'wedge', label: 'Wedge', correct: false },
+            { svg: 'lever', label: 'Lever', correct: true },
+            { svg: 'wheel_axle', label: 'Wheel', correct: false }
+          ]
+        },
+        {
+          id: 'l2_3',
+          prompt: 'Find the matching Pulley!',
+          targetSvg: 'pulley',
+          options: [
+            { svg: 'screw', label: 'Screw', correct: false },
+            { svg: 'wheel_axle', label: 'Wheel', correct: false },
+            { svg: 'pulley', label: 'Pulley', correct: true }
+          ]
+        },
+        {
+          id: 'l2_4',
+          prompt: 'Find the matching Screw!',
+          targetSvg: 'screw',
+          options: [
+            { svg: 'screw', label: 'Screw', correct: true },
+            { svg: 'inclined_plane', label: 'Ramp', correct: false },
+            { svg: 'wedge', label: 'Wedge', correct: false }
+          ]
+        }
+      ],
+
+      // Level 3: Machine Name -> Picture
+      level3: [
+        {
+          id: 'l3_1',
+          prompt: 'Which picture shows a LEVER?',
+          audioText: 'Which picture shows a lever?',
+          options: [
+            { svg: 'lever', label: 'Lever', correct: true },
+            { svg: 'inclined_plane', label: 'Inclined Plane', correct: false },
+            { svg: 'pulley', label: 'Pulley', correct: false }
+          ]
+        },
+        {
+          id: 'l3_2',
+          prompt: 'Which picture shows a PULLEY?',
+          audioText: 'Which picture shows a pulley?',
+          options: [
+            { svg: 'wheel_axle', label: 'Wheel & Axle', correct: false },
+            { svg: 'pulley', label: 'Pulley', correct: true },
+            { svg: 'wedge', label: 'Wedge', correct: false }
+          ]
+        },
+        {
+          id: 'l3_3',
+          prompt: 'Which picture shows a WEDGE?',
+          audioText: 'Which picture shows a wedge?',
+          options: [
+            { svg: 'screw', label: 'Screw', correct: false },
+            { svg: 'lever', label: 'Lever', correct: false },
+            { svg: 'wedge', label: 'Wedge', correct: true }
+          ]
+        },
+        {
+          id: 'l3_4',
+          prompt: 'Which picture shows a WHEEL AND AXLE?',
+          audioText: 'Which picture shows a wheel and axle?',
+          options: [
+            { svg: 'wheel_axle', label: 'Wheel & Axle', correct: true },
+            { svg: 'inclined_plane', label: 'Inclined Plane', correct: false },
+            { svg: 'screw', label: 'Screw', correct: false }
+          ]
+        }
+      ],
+
+      // Level 4: Picture -> Machine Name
+      level4: [
+        {
+          id: 'l4_1',
+          prompt: 'Look at the seesaw. What simple machine is this?',
+          mainSvg: 'seesaw',
+          options: [
+            { label: 'Lever', correct: true },
+            { label: 'Pulley', correct: false },
+            { label: 'Wedge', correct: false }
+          ]
+        },
+        {
+          id: 'l4_2',
+          prompt: 'Look at the flagpole rope. What simple machine raises the flag?',
+          mainSvg: 'flagpole',
+          options: [
+            { label: 'Inclined Plane', correct: false },
+            { label: 'Pulley', correct: true },
+            { label: 'Screw', correct: false }
+          ]
+        },
+        {
+          id: 'l4_3',
+          prompt: 'Look at the knife slicing food. What simple machine is the blade?',
+          mainSvg: 'knife',
+          options: [
+            { label: 'Wedge', correct: true },
+            { label: 'Lever', correct: false },
+            { label: 'Wheel & Axle', correct: false }
+          ]
+        },
+        {
+          id: 'l4_4',
+          prompt: 'Look at the playground slide. What simple machine is it?',
+          mainSvg: 'slide',
+          options: [
+            { label: 'Screw', correct: false },
+            { label: 'Inclined Plane', correct: true },
+            { label: 'Lever', correct: false }
+          ]
+        }
+      ],
+
+      // Level 5: Everyday Objects
+      level5: [
+        {
+          id: 'l5_1',
+          prompt: 'What simple machine helps you turn a doorknob?',
+          mainSvg: 'doorknob',
+          options: [
+            { label: 'Wheel and Axle', correct: true },
+            { label: 'Wedge', correct: false },
+            { label: 'Pulley', correct: false }
+          ]
+        },
+        {
+          id: 'l5_2',
+          prompt: 'What simple machine turns on top of a jar to keep it closed?',
+          mainSvg: 'jar_lid',
+          options: [
+            { label: 'Screw', correct: true },
+            { label: 'Lever', correct: false },
+            { label: 'Inclined Plane', correct: false }
+          ]
+        },
+        {
+          id: 'l5_3',
+          prompt: 'What simple machine helps you snip paper with scissors?',
+          mainSvg: 'scissors',
+          options: [
+            { label: 'Pulley', correct: false },
+            { label: 'Lever', correct: true },
+            { label: 'Screw', correct: false }
+          ]
+        },
+        {
+          id: 'l5_4',
+          prompt: 'What simple machine is an axe used to chop wood?',
+          mainSvg: 'axe',
+          options: [
+            { label: 'Wedge', correct: true },
+            { label: 'Inclined Plane', correct: false },
+            { label: 'Wheel and Axle', correct: false }
+          ]
+        }
+      ],
+
+      // Level 6: What Does It Help Us Do?
+      level6: [
+        {
+          id: 'l6_1',
+          prompt: 'Which simple machine helps move heavy objects UP into a truck?',
+          options: [
+            { svg: 'inclined_plane', label: 'Inclined Plane (Ramp)', correct: true },
+            { svg: 'wedge', label: 'Wedge', correct: false },
+            { svg: 'lever', label: 'Lever', correct: false }
+          ]
+        },
+        {
+          id: 'l6_2',
+          prompt: 'Which simple machine helps raise a flag high up in the air?',
+          options: [
+            { svg: 'screw', label: 'Screw', correct: false },
+            { svg: 'pulley', label: 'Pulley', correct: true },
+            { svg: 'wedge', label: 'Wedge', correct: false }
+          ]
+        },
+        {
+          id: 'l6_3',
+          prompt: 'Which simple machine helps cut an apple into slices?',
+          options: [
+            { svg: 'wedge', label: 'Wedge', correct: true },
+            { svg: 'inclined_plane', label: 'Inclined Plane', correct: false },
+            { svg: 'pulley', label: 'Pulley', correct: false }
+          ]
+        },
+        {
+          id: 'l6_4',
+          prompt: 'Which simple machine helps hold two wooden boards together tightly?',
+          options: [
+            { svg: 'lever', label: 'Lever', correct: false },
+            { svg: 'screw', label: 'Screw', correct: true },
+            { svg: 'wheel_axle', label: 'Wheel & Axle', correct: false }
+          ]
+        }
+      ],
+
+      // Level 7: Choose the Right Machine (Problem Solving)
+      level7: [
+        {
+          id: 'l7_1',
+          prompt: 'Problem: You need to push a heavy toy box onto a high stage. What should you use?',
+          options: [
+            { svg: 'inclined_plane', label: 'A Slanted Ramp', correct: true },
+            { svg: 'scissors', label: 'Scissors', correct: false },
+            { svg: 'axe', label: 'An Axe', correct: false }
+          ]
+        },
+        {
+          id: 'l7_2',
+          prompt: 'Problem: You want to lift a heavy bucket out of a deep well. What machine helps?',
+          options: [
+            { svg: 'pulley', label: 'A Rope and Pulley', correct: true },
+            { svg: 'ramp', label: 'A Ramp', correct: false },
+            { svg: 'knife', label: 'A Knife', correct: false }
+          ]
+        },
+        {
+          id: 'l7_3',
+          prompt: 'Problem: You want your toy wagon to roll smoothly across the floor. What does it need?',
+          options: [
+            { svg: 'wheel_axle', label: 'Wheel and Axle', correct: true },
+            { svg: 'wedge', label: 'A Wedge', correct: false },
+            { svg: 'pulley', label: 'A Pulley', correct: false }
+          ]
+        }
+      ],
+
+      // Level 9: Compare Machines
+      level9: [
+        {
+          id: 'l9_1',
+          prompt: 'Compare: Which machine would help you raise a heavy sail on a sailboat?',
+          options: [
+            { svg: 'pulley', label: 'Pulley (Rope & Wheel)', correct: true },
+            { svg: 'wedge', label: 'Wedge (Sharp Edge)', correct: false }
+          ]
+        },
+        {
+          id: 'l9_2',
+          prompt: 'Compare: Which machine would help a person in a wheelchair get up steps?',
+          options: [
+            { svg: 'inclined_plane', label: 'Inclined Plane (Ramp)', correct: true },
+            { svg: 'screw', label: 'Screw', correct: false }
+          ]
+        },
+        {
+          id: 'l9_3',
+          prompt: 'Compare: Which machine is used to open a tight jar cap?',
+          options: [
+            { svg: 'screw', label: 'Screw Threads', correct: true },
+            { svg: 'lever', label: 'A Seesaw Lever', correct: false }
+          ]
+        }
+      ],
+
+      // Level 10: Final Challenge (10 Mixed questions)
+      level10: [
+        {
+          id: 'l10_1',
+          prompt: 'Challenge 1: Identify the simple machine in a pairs of scissors.',
+          mainSvg: 'scissors',
+          options: [
+            { label: 'Lever', correct: true },
+            { label: 'Pulley', correct: false },
+            { label: 'Inclined Plane', correct: false }
+          ]
+        },
+        {
+          id: 'l10_2',
+          prompt: 'Challenge 2: Which machine uses spiral threads to hold things together?',
+          options: [
+            { svg: 'screw', label: 'Screw', correct: true },
+            { svg: 'wedge', label: 'Wedge', correct: false },
+            { svg: 'lever', label: 'Lever', correct: false }
+          ]
+        },
+        {
+          id: 'l10_3',
+          prompt: 'Challenge 3: A ramp is an example of which simple machine?',
+          mainSvg: 'ramp',
+          options: [
+            { label: 'Inclined Plane', correct: true },
+            { label: 'Wheel and Axle', correct: false },
+            { label: 'Pulley', correct: false }
+          ]
+        },
+        {
+          id: 'l10_4',
+          prompt: 'Challenge 4: Which machine helps a crane lift heavy steel beams?',
+          mainSvg: 'crane',
+          options: [
+            { label: 'Pulley', correct: true },
+            { label: 'Wedge', correct: false },
+            { label: 'Screw', correct: false }
+          ]
+        },
+        {
+          id: 'l10_5',
+          prompt: 'Challenge 5: What simple machine has a sharp edge for splitting logs?',
+          mainSvg: 'axe',
+          options: [
+            { label: 'Wedge', correct: true },
+            { label: 'Lever', correct: false },
+            { label: 'Screw', correct: false }
+          ]
+        }
+      ]
+    };
+
+    // Application Controller Object
+    const app = {
+      state: {
+        currentLevel: 1,
+        unlockedLevels: [1],
+        stars: 0,
+        badges: [],
+        currentQuestionIndex: 0,
+        level8FoundCount: 0,
+        level1SelectedMachine: 'lever'
+      },
+
+      init() {
+        this.loadProgress();
+        this.renderLevelNav();
+        this.updateStarUI();
+        this.showLevel(this.state.currentLevel);
+      },
+
+      loadProgress() {
+        try {
+          const saved = localStorage.getItem('ontario_grade2_simple_machines');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            this.state.stars = parsed.stars || 0;
+            this.state.unlockedLevels = parsed.unlockedLevels || [1];
+            this.state.badges = parsed.badges || [];
+          }
+        } catch (e) {
+          console.warn('LocalStorage error:', e);
+        }
+      },
+
+      saveProgress() {
+        try {
+          localStorage.setItem('ontario_grade2_simple_machines', JSON.stringify({
+            stars: this.state.stars,
+            unlockedLevels: this.state.unlockedLevels,
+            badges: this.state.badges
+          }));
+        } catch (e) {
+          console.warn('LocalStorage save error:', e);
+        }
+      },
+
+      resetProgress() {
+        if (confirm('Are you sure you want to reset all stars and progress?')) {
+          localStorage.removeItem('ontario_grade2_simple_machines');
+          this.state.stars = 0;
+          this.state.unlockedLevels = [1];
+          this.state.badges = [];
+          this.state.currentLevel = 1;
+          this.saveProgress();
+          this.init();
+          this.closeTeacherModal();
+        }
+      },
+
+      toggleSound() {
+        soundEnabled = !soundEnabled;
+        const btn = document.getElementById('sound-btn');
+        btn.innerHTML = soundEnabled ? '🔊' : '🔇';
+        btn.classList.toggle('bg-sky-100', soundEnabled);
+        btn.classList.toggle('bg-slate-200', !soundEnabled);
+        if (soundEnabled) {
+          speakText('Sound on');
+        } else {
+          window.speechSynthesis.cancel();
+        }
+      },
+
+      addStars(num) {
+        this.state.stars += num;
+        this.updateStarUI();
+        this.saveProgress();
+      },
+
+      updateStarUI() {
+        document.getElementById('star-count').innerText = this.state.stars;
+      },
+
+      unlockLevel(levelNum) {
+        if (!this.state.unlockedLevels.includes(levelNum)) {
+          this.state.unlockedLevels.push(levelNum);
+          this.saveProgress();
+          this.renderLevelNav();
+        }
+      },
+
+      awardBadge(badgeKey, title, icon) {
+        if (!this.state.badges.includes(badgeKey)) {
+          this.state.badges.push(badgeKey);
+          this.saveProgress();
+          
+          // Show unlock banner on celebration screen
+          const banner = document.getElementById('badge-unlocked-banner');
+          document.getElementById('badge-unlocked-icon').innerText = icon;
+          document.getElementById('badge-unlocked-title').innerText = title;
+          banner.classList.remove('hidden');
+        }
+      },
+
+      renderLevelNav() {
+        const container = document.getElementById('level-nav-container');
+        container.innerHTML = '';
+
+        for (let i = 1; i <= 10; i++) {
+          const unlocked = this.state.unlockedLevels.includes(i);
+          const active = this.state.currentLevel === i;
+
+          const btn = document.createElement('button');
+          btn.className = `touch-target px-3 py-1.5 rounded-xl font-display font-bold text-sm flex items-center space-x-1 border-2 transition ${
+            active
+              ? 'bg-amber-400 border-amber-600 text-slate-900 shadow-md scale-105'
+              : unlocked
+              ? 'bg-white border-amber-300 text-amber-900 hover:bg-amber-50'
+              : 'bg-slate-200 border-slate-300 text-slate-400 opacity-60 cursor-not-allowed'
+          }`;
+
+          btn.innerHTML = `
+            <span>${unlocked ? '⭐' : '🔒'}</span>
+            <span>L${i}</span>
+          `;
+
+          if (unlocked) {
+            btn.onclick = () => this.showLevel(i);
+          }
+          container.appendChild(btn);
+        }
+      },
+
+      showLevel(levelNum) {
+        this.state.currentLevel = levelNum;
+        this.state.currentQuestionIndex = 0;
+        this.renderLevelNav();
+
+        // Hide all views
+        document.getElementById('level-1-view').classList.add('hidden');
+        document.getElementById('quiz-view').classList.add('hidden');
+        document.getElementById('level-8-view').classList.add('hidden');
+        document.getElementById('completion-view').classList.add('hidden');
+
+        if (levelNum === 1) {
+          this.renderLevel1();
+        } else if (levelNum === 8) {
+          this.renderLevel8();
+        } else {
+          this.renderQuizQuestion();
+        }
+      },
+
+      renderLevel1() {
+        document.getElementById('level-1-view').classList.remove('hidden');
+        
+        // Machine Tabs
+        const tabsContainer = document.getElementById('level1-machine-tabs');
+        tabsContainer.innerHTML = '';
+
+        Object.keys(MACHINES_DATA).forEach(key => {
+          const m = MACHINES_DATA[key];
+          const isSelected = this.state.level1SelectedMachine === key;
+
+          const tab = document.createElement('button');
+          tab.className = `touch-target p-3 rounded-2xl font-display font-bold text-sm md:text-base border-3 flex flex-col items-center justify-center space-y-1 transition ${
+            isSelected
+              ? 'bg-amber-400 border-amber-600 text-slate-900 shadow-md scale-105'
+              : 'bg-white border-slate-200 text-slate-700 hover:bg-amber-50'
+          }`;
+          tab.innerHTML = `
+            <span class="text-2xl">${m.icon}</span>
+            <span>${m.name}</span>
+          `;
+          tab.onclick = () => {
+            this.state.level1SelectedMachine = key;
+            this.renderLevel1();
+            speakText(m.name + '. ' + m.grade2Text);
+          };
+          tabsContainer.appendChild(tab);
+        });
+
+        // Active Machine Card Details
+        const active = MACHINES_DATA[this.state.level1SelectedMachine];
+        const cardContainer = document.getElementById('level1-card-content');
+        
+        const svgHTML = SVGs[active.svgKey] ? SVGs[active.svgKey](220, 160) : '';
+
+        let examplesHTML = active.examples.map(ex => `
+          <div class="bg-white p-3 rounded-2xl border-2 border-slate-200 flex flex-col items-center shadow-sm">
+            <div class="h-16 flex items-center justify-center">
+              ${SVGs[ex.svgKey] ? SVGs[ex.svgKey](70, 55) : '📦'}
+            </div>
+            <span class="font-bold text-xs text-slate-700 mt-1">${ex.name}</span>
+          </div>
+        `).join('');
+
+        cardContainer.innerHTML = `
+          <div class="flex-1 space-y-4">
+            <div class="flex items-center space-x-3">
+              <span class="text-4xl">${active.icon}</span>
+              <h3 class="font-display font-bold text-3xl text-slate-800">${active.name}</h3>
+              <button onclick="speakText('${active.name}. ${active.grade2Text}')" class="touch-target bg-sky-100 hover:bg-sky-200 text-sky-700 p-2 rounded-xl font-bold text-xl">
+                🔊
+              </button>
+            </div>
+            
+            <p class="text-slate-700 text-lg md:text-xl leading-relaxed font-medium bg-amber-50 p-4 rounded-2xl border-2 border-amber-200">
+              "${active.grade2Text}"
+            </p>
+
+            <div>
+              <h4 class="font-display font-bold text-slate-700 text-sm uppercase tracking-wider mb-2">Everyday Examples:</h4>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                ${examplesHTML}
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-3xl border-3 border-amber-300 shadow-md flex flex-col items-center justify-center min-w-[240px]">
+            ${svgHTML}
+            <span class="text-xs font-bold text-slate-400 mt-2">Interactive Diagram</span>
+          </div>
+        `;
+      },
+
+      completeLevel1() {
+        playSuccessChime();
+        this.addStars(5);
+        this.unlockLevel(2);
+        this.showCelebration('Level 1 Complete!', 'You met all 6 simple machines!', 2);
+      },
+
+      renderQuizQuestion() {
+        const levelKey = 'level' + this.state.currentLevel;
+        const questions = LEVEL_QUESTIONS[levelKey] || LEVEL_QUESTIONS.level2;
+        const qIndex = this.state.currentQuestionIndex;
+
+        if (qIndex >= questions.length) {
+          // Level Completed!
+          this.completeCurrentLevel();
+          return;
+        }
+
+        const q = questions[qIndex];
+        document.getElementById('quiz-view').classList.remove('hidden');
+
+        // Level pill & Counter
+        document.getElementById('quiz-level-badge').innerText = `Level ${this.state.currentLevel}`;
+        document.getElementById('quiz-counter').innerText = `Question ${qIndex + 1}/${questions.length}`;
+
+        // Question Text
+        document.getElementById('quiz-question-text').innerText = q.prompt;
+
+        // Auto read aloud prompt if sound enabled
+        speakText(q.audioText || q.prompt);
+
+        // Main Illustration
+        const illusContainer = document.getElementById('quiz-main-illustration');
+        illusContainer.innerHTML = '';
+
+        if (q.targetSvg && SVGs[q.targetSvg]) {
+          illusContainer.innerHTML = `
+            <div class="bg-amber-50 p-4 rounded-3xl border-3 border-amber-300 shadow-sm">
+              ${SVGs[q.targetSvg](180, 130)}
+            </div>
+          `;
+        } else if (q.mainSvg && SVGs[q.mainSvg]) {
+          illusContainer.innerHTML = `
+            <div class="bg-sky-50 p-4 rounded-3xl border-3 border-sky-300 shadow-sm">
+              ${SVGs[q.mainSvg](180, 130)}
+            </div>
+          `;
+        }
+
+        // Options Container
+        const optionsContainer = document.getElementById('quiz-options-container');
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `touch-target p-5 rounded-3xl border-4 border-slate-200 bg-white hover:border-sky-400 shadow-md flex flex-col items-center justify-center space-y-2 transition transform active:scale-95`;
+          
+          let svgContent = '';
+          if (opt.svg && SVGs[opt.svg]) {
+            svgContent = `<div class="h-20 flex items-center justify-center">${SVGs[opt.svg](110, 80)}</div>`;
+          }
+
+          btn.innerHTML = `
+            ${svgContent}
+            <span class="font-display font-bold text-xl text-slate-800">${opt.label}</span>
+          `;
+
+          btn.onclick = () => this.handleAnswerSelect(opt, btn, q);
+          optionsContainer.appendChild(btn);
+        });
+      },
+
+      speakCurrentQuestion() {
+        const levelKey = 'level' + this.state.currentLevel;
+        const questions = LEVEL_QUESTIONS[levelKey] || LEVEL_QUESTIONS.level2;
+        const q = questions[this.state.currentQuestionIndex];
+        if (q) {
+          speakText(q.audioText || q.prompt);
+        }
+      },
+
+      handleAnswerSelect(opt, buttonEl, questionObj) {
+        if (opt.correct) {
+          // --- CORRECT ANSWER ---
+          playSuccessChime();
+          triggerConfetti();
+          speakText("Correct! " + opt.label);
+
+          buttonEl.classList.remove('border-slate-200', 'hover:border-sky-400');
+          buttonEl.classList.add('border-emerald-500', 'bg-emerald-50', 'pop-correct');
+
+          this.addStars(2);
+
+          // Short delay before next question
+          setTimeout(() => {
+            this.state.currentQuestionIndex++;
+            this.renderQuizQuestion();
+          }, 1200);
+
+        } else {
+          // --- INCORRECT ANSWER (CRITICAL RULE: DO NOTHING!) ---
+          // No red X, no error sound, no penalty, no state shift!
+          // Student can simply try again safely.
+        }
+      },
+
+      renderLevel8() {
+        document.getElementById('level-8-view').classList.remove('hidden');
+        this.state.level8FoundCount = 0;
+
+        // Level 8 Target: Levers!
+        document.getElementById('sort-target-machine-name').innerText = 'LEVERS';
+        document.getElementById('sorting-found-status').innerText = 'Found: 0 / 3';
+
+        const sortingItems = [
+          { name: 'Seesaw', svg: 'seesaw', isTarget: true },
+          { name: 'Ramp', svg: 'ramp', isTarget: false },
+          { name: 'Scissors', svg: 'scissors', isTarget: true },
+          { name: 'Screw', svg: 'screw', isTarget: false },
+          { name: 'Bottle Opener', svg: 'bottle_opener', isTarget: true },
+          { name: 'Pulley', svg: 'pulley', isTarget: false }
+        ];
+
+        const grid = document.getElementById('sorting-cards-grid');
+        grid.innerHTML = '';
+
+        speakText('Find all the Levers! Tap every picture that is a lever!');
+
+        sortingItems.forEach(item => {
+          const card = document.createElement('button');
+          card.className = `touch-target p-4 rounded-3xl border-4 border-slate-200 bg-white hover:border-indigo-300 shadow-md flex flex-col items-center justify-center space-y-2 transition`;
+
+          card.innerHTML = `
+            <div class="h-20 flex items-center justify-center">
+              ${SVGs[item.svg] ? SVGs[item.svg](100, 75) : ''}
+            </div>
+            <span class="font-display font-bold text-lg text-slate-800">${item.name}</span>
+          `;
+
+          card.onclick = () => {
+            if (item.isTarget) {
+              if (!card.disabled) {
+                card.disabled = true;
+                card.classList.remove('border-slate-200');
+                card.classList.add('border-emerald-500', 'bg-emerald-50', 'pop-correct');
+                playSuccessChime();
+                speakText('Yes! ' + item.name + ' is a lever!');
+
+                this.state.level8FoundCount++;
+                document.getElementById('sorting-found-status').innerText = `Found: ${this.state.level8FoundCount} / 3`;
+
+                if (this.state.level8FoundCount >= 3) {
+                  triggerConfetti();
+                  setTimeout(() => {
+                    this.completeCurrentLevel();
+                  }, 1200);
+                }
+              }
+            } else {
+              // INCORRECT ANSWER RULE: DO NOTHING!
+            }
+          };
+
+          grid.appendChild(card);
+        });
+      },
+
+      completeCurrentLevel() {
+        const lvl = this.state.currentLevel;
+        const nextLvl = lvl + 1;
+        this.unlockLevel(nextLvl);
+        this.addStars(10);
+
+        // Check for special badge rewards
+        if (lvl === 1) this.awardBadge('lever_exp', 'Lever Expert', '⚖️');
+        if (lvl === 3) this.awardBadge('pulley_pro', 'Pulley Pro', '🪢');
+        if (lvl === 5) this.awardBadge('ramp_ranger', 'Ramp Ranger', '📐');
+        if (lvl === 7) this.awardBadge('wedge_wiz', 'Wedge Wizard', '🪓');
+        if (lvl === 8) this.awardBadge('screw_solv', 'Screw Solver', '🔩');
+        if (lvl === 9) this.awardBadge('wheel_exp', 'Wheel & Axle Expert', '🛞');
+        if (lvl === 10) this.awardBadge('master', 'Simple Machine Master', '🏆');
+
+        this.showCelebration(`Level ${lvl} Completed!`, 'Fantastic progress! You earned 10 bonus stars!', nextLvl);
+      },
+
+      showCelebration(title, msg, nextLvl) {
+        document.getElementById('level-1-view').classList.add('hidden');
+        document.getElementById('quiz-view').classList.add('hidden');
+        document.getElementById('level-8-view').classList.add('hidden');
+
+        document.getElementById('completion-view').classList.remove('hidden');
+        document.getElementById('completion-title').innerText = title;
+        document.getElementById('completion-message').innerText = msg;
+
+        speakText(title + '. ' + msg);
+        triggerConfetti();
+      },
+
+      nextLevel() {
+        const nextLvl = Math.min(10, this.state.currentLevel + 1);
+        document.getElementById('badge-unlocked-banner').classList.add('hidden');
+        this.showLevel(nextLvl);
+      },
+
+      goHome() {
+        document.getElementById('badge-unlocked-banner').classList.add('hidden');
+        this.showLevel(1);
+      },
+
+      // Modals
+      openGlossary() {
+        const container = document.getElementById('glossary-cards-container');
+        container.innerHTML = '';
+
+        Object.keys(MACHINES_DATA).forEach(key => {
+          const m = MACHINES_DATA[key];
+          const div = document.createElement('div');
+          div.className = 'bg-slate-50 border-2 border-purple-200 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-4';
+          div.innerHTML = `
+            <div class="bg-white p-3 rounded-xl border border-slate-200 min-w-[120px] flex items-center justify-center">
+              ${SVGs[m.svgKey] ? SVGs[m.svgKey](100, 80) : ''}
+            </div>
+            <div class="flex-1 space-y-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-2xl">${m.icon}</span>
+                <h4 class="font-display font-bold text-xl text-purple-900">${m.name}</h4>
+                <button onclick="speakText('${m.name}. ${m.simpleDef}')" class="text-sky-600 text-lg">🔊</button>
+              </div>
+              <p class="text-slate-700 text-sm md:text-base font-medium">${m.simpleDef}</p>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+
+        document.getElementById('glossary-modal').classList.remove('hidden');
+      },
+
+      closeGlossary() {
+        document.getElementById('glossary-modal').classList.add('hidden');
+      },
+
+      openTeacherModal() {
+        document.getElementById('teacher-modal').classList.remove('hidden');
+      },
+
+      closeTeacherModal() {
+        document.getElementById('teacher-modal').classList.add('hidden');
+      },
+
+      openBadges() {
+        const grid = document.getElementById('badges-grid-container');
+        grid.innerHTML = '';
+
+        const badgeList = [
+          { key: 'lever_exp', title: 'Lever Expert', icon: '⚖️' },
+          { key: 'pulley_pro', title: 'Pulley Pro', icon: '🪢' },
+          { key: 'ramp_ranger', title: 'Ramp Ranger', icon: '📐' },
+          { key: 'wedge_wiz', title: 'Wedge Wizard', icon: '🪓' },
+          { key: 'screw_solv', title: 'Screw Solver', icon: '🔩' },
+          { key: 'wheel_exp', title: 'Wheel Expert', icon: '🛞' },
+          { key: 'master', title: 'Machine Master', icon: '🏆' }
+        ];
+
+        badgeList.forEach(b => {
+          const unlocked = this.state.badges.includes(b.key);
+          const div = document.createElement('div');
+          div.className = `p-4 rounded-2xl border-2 text-center flex flex-col items-center justify-center space-y-2 ${
+            unlocked
+              ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-sm'
+              : 'bg-slate-100 border-slate-300 text-slate-400 opacity-60'
+          }`;
+          div.innerHTML = `
+            <span class="text-4xl">${unlocked ? b.icon : '🔒'}</span>
+            <span class="font-display font-bold text-sm">${b.title}</span>
+          `;
+          grid.appendChild(div);
+        });
+
+        document.getElementById('badges-modal').classList.remove('hidden');
+      },
+
+      closeBadges() {
+        document.getElementById('badges-modal').classList.add('hidden');
+      }
+    };
+
+    // Confetti Animation System
+    function triggerConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6'];
+
+      for (let i = 0; i < 60; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.7) * 14,
+          size: Math.random() * 8 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 10
+        });
+      }
+
+      let frame = 0;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.3; // Gravity
+          p.rotation += p.rotSpeed;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+
+        frame++;
+        if (frame < 80) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      animate();
+    }
+
+    // On Window Load Bootstrap
+    window.onload = function() {
+      app.init();
+    };
+  </script>
+</body>
+</html>
